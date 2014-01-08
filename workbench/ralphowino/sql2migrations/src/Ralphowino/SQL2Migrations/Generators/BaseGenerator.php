@@ -28,4 +28,17 @@ class BaseGenerator
 		}
 		return($fields);
 	}
+
+	
+	function make($name,$up,$down)
+	{
+		$content = file_get_contents(__DIR__.'/../Templates/migrations.php');
+		$content = str_replace('{{classname}}', studly_case($name), $content);
+		$content = str_replace('{{upmigrations}}', $up, $content);
+		$content = str_replace('{{downmigrations}}', $down, $content);
+
+		$path = base_path().'/sql_files/'.\Session::get('uniqid').'/migrations';
+		if(!file_exists($path)) mkdir($path,0755, true);
+		file_put_contents($path.'/'.date('Y_m_d_hms_').$name.'.php', $content);
+	}
 }

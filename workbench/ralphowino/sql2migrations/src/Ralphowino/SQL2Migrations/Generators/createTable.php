@@ -5,6 +5,8 @@ class createTable extends BaseGenerator implements generatorsContract
 {
 	private $table;
 
+	private $checkExists = FALSE;
+
 	public function parse($sql)
 	{
 		if(starts_with($sql, 'CREATE TABLE'))
@@ -12,15 +14,30 @@ class createTable extends BaseGenerator implements generatorsContract
 			$this->sql = $sql;
 			$this->getTableName();
 			$fields = $this->generateFields($sql);
-			$ouput = "Schema::create('$this->table',function(".'$table)'.PHP_EOL."\t\t{".PHP_EOL;
+			$tabs = "\t\t";
+			$up = '';
+
+			if($this->checkExists)
+			{
+				$up .="if (!Schema::hasTable('$this->table'))".PHP_EOL.$tabs."{".PHP_EOL.$tabs."\t";
+				$tabs = "\t\t";
+			}
+				
+			
+			$up .= "Schema::create('$this->table',function(".'$table)'.PHP_EOL.$tabs."\t{".PHP_EOL;
+			
 			foreach ($fields as $field)
 			{
-				$ouput .= "\t\t\t".'$table'.$field.';'.PHP_EOL;
+				$up .= $tabs."\t\t".'$table'.$field.';'.PHP_EOL;
 			}
-			$ouput .= "\t\t});".PHP_EOL;
+			
+			$up .= $tabs."\t});".PHP_EOL;
+
+			if($this->checkExists)
+				$up .=$tabs."}";
 
 			$down = "Schema::drop('$this->table');";
-			$this->make(snake_case($this->table),$ouput,$down);
+			$this->make(snake_case($this->table),$up,$down);
 			return true;
 		}
 		return false;
@@ -31,7 +48,10 @@ class createTable extends BaseGenerator implements generatorsContract
 	{
 		$this->table = substr($this->sql, 13);
 		if(starts_with($this->table, 'IF NOT'))
+		{
+			$this->checkExists = TRUE;
 			$this->table = substr($this->table, 13);
+		}
 		$this->table = trim($this->table);
 		if(starts_with($this->table, '`'))
 			$this->table = substr($this->table, 1, strpos($this->table, '`',1)-1);
@@ -39,15 +59,4 @@ class createTable extends BaseGenerator implements generatorsContract
 			$this->table = substr($this->table, 0, strpos($this->table, ' '));
 	}
 
-	function make($name,$up,$down)
-	{
-		$content = file_get_contents(__DIR__.'/../Templates/migrations.php');
-		$content = str_replace('{{classname}}', studly_case($name), $content);
-		$content = str_replace('{{upmigrations}}', $up, $content);
-		$content = str_replace('{{downmigrations}}', $down, $content);
-
-		$path = base_path().'/sql_files/'.\Session::get('uniqid').'/migrations';
-		if(!file_exists($path)) mkdir($path,0755, true);
-		file_put_contents($path.'/'.date('Y_m_d_hms_').$name.'.php', $content);
-	}
 }

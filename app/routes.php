@@ -19,7 +19,9 @@ Route::get('/', function()
 
 Route::post('generate', function()
 {	
-	Session::put('uniqid', md5(uniqid()));	
+	if(!Session::has('uniqid'))	
+		Session::put('uniqid', md5(uniqid()));
+
 	$path = base_path().'/sql_files/'.Session::get('uniqid').'/';
 	if(!file_exists($path)) mkdir($path,0755,true);
 	$file = 'input.sql';

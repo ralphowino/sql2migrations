@@ -7,7 +7,7 @@ class TimestampsFieldParser extends BaseParser implements ParsersContract
 {
 	public function parse($type, $sql)
 	{		
-		if($type != 'datetime' &&  (strpos($sql, 'created_at') == 0 ||  strpos($sql, 'updated_at') == 0)) return false;
+		if($type != 'datetime' &&  (str_contains($sql, 'created_at') ||  str_contains($sql, 'updated_at'))) return false;
 		$field = "->timestamps()";
 		return $field;
 	}
