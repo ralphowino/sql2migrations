@@ -106,7 +106,7 @@ return array(
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
-		'Ralphowino\SQL2Migrations\SQL2MigrationsServiceProvider',
+		// 'Ralphowino\SQL2Migrations\SQL2MigrationsServiceProvider',
 
 	),
 
