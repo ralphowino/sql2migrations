@@ -7,7 +7,9 @@ class SoftDeletesFieldParser extends BaseParser implements ParsersContract
 {
 	public function parse($type, $sql)
 	{		
-		if($type != 'datetime' &&  str_contains($sql, 'delete_at') ) return false;
+		if($type != 'datetime') return false;
+		if(!str_contains($sql, 'delete_at') ) return false;
+		
 		$field = "->softDeletes()";
 		return $field;
 	}

@@ -7,12 +7,16 @@ class FloatFieldParser extends BaseParser implements ParsersContract
 {
 	public function parse($type, $sql)
 	{		
-		if($type != 'float') return false;
+		if(!str_contains($type,'float')) return false;
+		
 		$this->sql = $sql;
 		$name = substr($sql, 0, strpos($sql, ' '));
 		$name = str_replace('`', '', $name);
-				
-		$field = "->float('$name')";
+
+		$size = substr($sql, strpos($sql, '(')+1);
+		$size = substr($size, 0,strpos($size, ')'));
+		
+		$field = "->float('$name',$size)";
 		return $field;
 	}
 }
